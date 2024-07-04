@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Marvel Heroes</string>
+
+    <!--characters names-->
+    <string name="deadpool">Deadpool</string>
+    <string name="iron_man">Iron man</string>
+    <string name="hulk">HULK</string>
+
+    <!--characters descriptions-->
+    <string name="deadpool_description">You might be wondering why the red suit. Well, that’s so bad guys don’t see me bleed."</string>
+    <string name="iron_man_description">I AM IRON MAN</string>
+    <string name="hulk_description">I\ AM THE EMBODIMENT OF PURE RAGE AND POWER</string>
+</resources>
