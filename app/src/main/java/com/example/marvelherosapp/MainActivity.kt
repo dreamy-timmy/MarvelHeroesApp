@@ -1,6 +1,7 @@
 package com.example.marvelherosapp
 
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -67,17 +68,24 @@ import androidx.navigation.compose.NavHost
 
 import androidx.compose.ui.text.font.FontWeight
 
+import com.example.marvelherosapp.HeroApp
+import com.example.marvelherosapp.utils.getImagePainter
+import com.example.marvelherosapp.utils.getCharacterName
+
+//import com.example.marvelherosapp.screens.MainScreen
+//import com.example.marvelherosapp.screens.DetailScreen
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
             var isMainScreen by remember { mutableStateOf(true) }
-            navController.addOnDestinationChangedListener{ _, destination, _ ->
+            navController.addOnDestinationChangedListener { _, destination, _ ->
                 isMainScreen = destination.route == "main"
             }
 
-            MyApp(isMainScreen) {
+            HeroApp(isMainScreen) {
 
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") { MainScreen(navController) }
@@ -92,120 +100,66 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun MyApp(isMainScreen: Boolean, content: @Composable () -> Unit) {
-        MaterialTheme {
-            Surface{
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black),
-                    contentAlignment = Alignment.Center
-                )
-                {
-//                    Image(
-//                        painter = painterResource(id = R.drawable.black_bg),
-//                        contentDescription = null,
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (isMainScreen)
-                        {
-                            Image(
-                                painter = painterResource(id = R.drawable.marvel_studios),
-                                contentDescription = "Marvel Studios Icon",
-                                modifier = Modifier
-                                    .width(300.dp)
-                                    .height(200.dp)
-                                    .padding(20.dp)
-                            )
-                            Text(
-                                text = "CHOOSE YOUR HERO!",
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-
-                        content()
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun MainScreen(navController: NavHostController)
-    {
-        val listState = rememberLazyListState()
-        val coroutineScope = rememberCoroutineScope()
-
-        LaunchedEffect(listState) {
-            snapshotFlow { listState.firstVisibleItemIndex }
-                .collect { index ->
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(index)
-                    }
-                }
-        }
-
-        LazyRow(
-            state = listState,
-            modifier = Modifier.fillMaxSize()
-        )
+        fun MainScreen(navController: NavHostController)
         {
-            items(3) { index ->
-                Box(
-                    modifier = Modifier
-                        .height(300.dp)
-                        .width(300.dp)
-                        .padding(8.dp)
-                        .clickable
-                        {
-                            navController.navigate("detail/$index")
-                        }
-                ) {
-                    Image(
-                        painter = getImagePainter(index),
-                        contentDescription = "Hero number $index",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .aspectRatio(1f)
-//                            .height(300.dp)
-//                            .width(300.dp)
-//                            .padding(8.dp)
-//                            .clickable{
-//                                navController.navigate("detail/$index")
-//                            }
-                    )
+            val listState = rememberLazyListState()
+            val coroutineScope = rememberCoroutineScope()
 
+            LaunchedEffect(listState) {
+                snapshotFlow { listState.firstVisibleItemIndex }
+                    .collect { index ->
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index)
+                        }
+                    }
+            }
+
+            LazyRow(
+                state = listState,
+                modifier = Modifier.fillMaxSize()
+            )
+            {
+                items(3) { index ->
                     Box(
                         modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                            .background(Color.Black.copy(alpha = 0.7f))
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        contentAlignment = Alignment.Center
+                            .height(300.dp)
+                            .width(300.dp)
+                            .padding(8.dp)
+                            .clickable
+                            {
+                                navController.navigate("detail/$index")
+                            }
                     ) {
-                        Text(
-                            text = getCharacterName(index),
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                        Image(
+                            painter = getImagePainter(index),
+                            contentDescription = "Hero number $index",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .aspectRatio(1f)
+
                         )
+
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .background(Color.Black.copy(alpha = 0.7f))
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = getCharacterName(getMainActivityContext(), index),
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
-            }
 
+            }
         }
-    }
 
     @Composable
     fun DetailScreen(navController: NavHostController, index: Int)
@@ -255,7 +209,7 @@ class MainActivity : ComponentActivity() {
 //                        .padding(10.dp)
                 )
                 Text(
-                    text = getCharacterName(index),
+                    text = getCharacterName(getMainActivityContext(), index),
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -270,25 +224,31 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
 
-    private fun getCharacterName(index: Int): String {
-        return when(index){
-            0 -> getString(R.string.deadpool)
-            1 -> getString(R.string.iron_man)
-            else -> getString(R.string.hulk)
+    }
+//    companion object {
+        fun getMainActivityContext(): Context {
+            return this@MainActivity
         }
-    }
+//    }
 
-    @Composable
-    fun getImagePainter(index: Int): Painter
-        {
-            val imageRes = when (index) {
-                0 -> R.drawable.deadpool
-                1 -> R.drawable.iron_man
-                else -> R.drawable.hulk
-            }
-            return painterResource(id = imageRes)
-
-    }
+//    private fun getCharacterName(index: Int): String {
+//        return when(index){
+//            0 -> getString(R.string.deadpool)
+//            1 -> getString(R.string.iron_man)
+//            else -> getString(R.string.hulk)
+//        }
+//    }
+//
+//    @Composable
+//    fun getImagePainter(index: Int): Painter
+//        {
+//            val imageRes = when (index) {
+//                0 -> R.drawable.deadpool
+//                1 -> R.drawable.iron_man
+//                else -> R.drawable.hulk
+//            }
+//            return painterResource(id = imageRes)
+//
+//    }
 }
