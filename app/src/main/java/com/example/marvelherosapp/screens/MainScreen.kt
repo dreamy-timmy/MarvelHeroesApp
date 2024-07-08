@@ -1,9 +1,11 @@
 package com.example.marvelherosapp.screens
 
 import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +35,7 @@ import com.example.marvelherosapp.utils.getCharacterName
 import com.example.marvelherosapp.utils.getImagePainter
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(context: Context, navController: NavHostController)
 {
@@ -47,9 +50,10 @@ fun MainScreen(context: Context, navController: NavHostController)
                 }
             }
     }
-
+    val snapFlip = rememberSnapFlingBehavior(lazyListState = listState)
     LazyRow(
         state = listState,
+        flingBehavior = snapFlip,
         modifier = Modifier.fillMaxSize()
     )
     {
